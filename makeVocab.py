@@ -1,4 +1,5 @@
 import os
+import sys
 
 def makeVocab(path, dictPath):
 	files = os.listdir(path)
@@ -25,4 +26,4 @@ def makeVocab(path, dictPath):
 
 
 if __name__ == '__main__':
-	makeVocab('/media/yy/10A4078410A40784/grad_proj/exp/camel_1.6.0/', '/media/yy/10A4078410A40784/grad_proj/exp/dicts/dict_camel_1.6.0')
+	makeVocab(sys.argv[1], sys.argv[2])
