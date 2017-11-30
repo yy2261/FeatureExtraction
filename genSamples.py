@@ -1,5 +1,6 @@
 import os
 import csv
+import sys
 
 def processWord(word):
 	newWord = ''
@@ -53,4 +54,4 @@ def genSamples(featurePath, dictPath, csvPath):
 
 
 if __name__ == '__main__':
-	genSamples('/media/yy/10A4078410A40784/grad_proj/exp/camel_1.6.0/', '/media/yy/10A4078410A40784/grad_proj/exp/dicts/dict_camel_1.2.0', '/media/yy/10A4078410A40784/grad_proj/exp/dicts/camel_test_1.6.0.csv')
+	genSamples(sys.argv[1], sys.argv[2], sys.argv[3])
