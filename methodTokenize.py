@@ -1,6 +1,6 @@
 import os
 import sys
-from stemming import *
+from tokenStem import *
 
 
 def writeText(fd, lines):
