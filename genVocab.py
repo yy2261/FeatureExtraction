@@ -37,7 +37,8 @@ def getText(path):
 		lines = fd.read().split('\n')
 		fd.close()
 		writeText(g, lines)
-		print str(num)+'\t'
+		sys.stdout.write(str(num)+'\r')
+		sys.stdout.flush()
 		num += 1 
 	g.close()
 
