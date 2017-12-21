@@ -14,6 +14,8 @@ def writeText(fd, lines):
 			wordList = splittt(name)
 			wordList = stemming(wordList)
 			phrase = conj(wordList)
+			if phrase == 'get_get':
+				print name
 			fd.write(' '+phrase)
 	fd.write('\n')
 
