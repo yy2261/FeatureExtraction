@@ -10,7 +10,7 @@ def writeText(fd, lines):
 		elif 'Statement' in lines[i] or 'Clause' in lines[i]:
 			fd.write(' '+lines[i].split(' ')[0].lower())
 		else:
-			name = lines[i].split(':')[-1]
+			name = lines[i].split(': ')[-1]
 			wordList = splittt(name)
 			wordList = stemming(wordList)
 			phrase = conj(wordList)
