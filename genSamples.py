@@ -41,6 +41,8 @@ def getVector(word, wordDict):
 	candidate = ''
 	maxcount = 0
 	for key in wordDict.keys():
+		if key not in word:
+			continue
 		for item in wordDict[key]:
 			isContain = 1
 			dict_words = item.split(' ')[0].split('_')
@@ -49,12 +51,12 @@ def getVector(word, wordDict):
 					isContain = 0
 					break
 			if isContain == 1:
-				if len(dict_words) > maxcount:
+				if len(dict_words) > maxcount and (len(dict_words) == 1 or dict_words[0] != dict_words[1]):
 					candidate = item
 					maxcount = len(dict_words)
 	if candidate == '':
 		print 'mismatch!'
-		return [0.000 for n in range(200)]
+		return ['0.000' for n in range(200)]
 	else:
 		print candidate.split(' ')[0]
 		return candidate.split(' ')[1:-1]
@@ -93,6 +95,8 @@ def genSamples(featurePath, dictPath, csvPath):
 			if word == '':
 				continue
 			vector = getVector(word, wordDict)
+			for j in range(len(vector)):
+				vector[j] = float(vector[j])
 			sample.append(vector)
 		if len(sample) > 200:
 			sample = sample[:200]
