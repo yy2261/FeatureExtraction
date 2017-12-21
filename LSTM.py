@@ -14,21 +14,21 @@ train_Y = []
 test_X = []
 test_Y = []
 test_name = []
-with open('/media/yy/10A4078410A40784/grad_proj/exp/dicts/camel_train_1.2.0.csv') as csvfile:
+with open(sys.argv[1]) as csvfile:
     reader = csv.reader(csvfile)
     for row in reader:
         featureRow = []
         for i in range(len(row)-3):
-            featureRow.append(int(row[i]))
+            featureRow.append(map(float, row[i].strip('[').strip(']').split(', ')))
         train_X.append(featureRow) 
         train_Y.append([int(row[-2]), int(row[-1])])  #row[-2] = 1 if defect exists
 
-with open('/media/yy/10A4078410A40784/grad_proj/exp/dicts/camel_test_1.4.0.csv') as csvfile:
+with open(sys.argv[2]) as csvfile:
     reader = csv.reader(csvfile)
     for row in reader:
         featureRow = []
         for i in range(len(row)-3):
-            featureRow.append(int(row[i]))
+            featureRow.append(map(float, row[i].strip('[').strip(']').split(', ')))
         test_X.append(featureRow) 
         test_Y.append([int(row[-2]), int(row[-1])])  #row[-2] = 1 if defect exists
         test_name.append(row[-3])
@@ -44,9 +44,9 @@ lr = 0.0001
 training_iters = 500
 batch_size = 424
       
-n_inputs = 4 
-n_steps = 50
-n_hidden_units = 80   # neurons in hidden layer  
+n_inputs = 200 
+n_steps = 200
+n_hidden_units = 200   # neurons in hidden layer  
 n_classes = 2      # classes
       
 # tf Graph input  
