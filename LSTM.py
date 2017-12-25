@@ -42,63 +42,117 @@ test_name = np.array(test_name)
 # hyperparameters  
 lr = 0.0001
 training_iters = 500
-batch_size = 424
+batch_size = 183
       
-n_inputs = 200 
-n_steps = 200
-n_hidden_units = 200   # neurons in hidden layer  
+n_inputs = 200
+n_steps = 50
+n_hidden_units = 500  # neurons in hidden layer  
 n_classes = 2      # classes
       
-# tf Graph input  
-x = tf.placeholder(tf.float32, [None, n_steps, n_inputs])  
-y = tf.placeholder(tf.float32, [None, n_classes])  
-      
+# tf Graph input
+x = tf.placeholder(tf.float32, [None, n_steps*4, n_inputs])
+y = tf.placeholder(tf.float32, [None, n_classes])
+
 # Define weights  
-weights = {  
-    # (28, 128)  
-    'in': tf.Variable(tf.random_normal([n_inputs, n_hidden_units])),  
-    # (128, 10)  
-    'out': tf.Variable(tf.random_normal([n_hidden_units, n_classes]))  
-}  
-biases = {  
-    # (128, )  
-    'in': tf.Variable(tf.constant(0.1, shape=[n_hidden_units, ])),  
-    # (10, )  
-    'out': tf.Variable(tf.constant(0.1, shape=[n_classes, ]))  
-}  
+weights_1 = tf.Variable(tf.random_normal([n_inputs, n_hidden_units]))
+biases_1 = tf.Variable(tf.constant(0.1, shape=[n_hidden_units, ]))
+
+weights_2 = tf.Variable(tf.random_normal([n_inputs, n_hidden_units]))
+biases_2 = tf.Variable(tf.constant(0.1, shape=[n_hidden_units, ])) 
+
+weights_3 = tf.Variable(tf.random_normal([n_inputs, n_hidden_units]))
+biases_3 = tf.Variable(tf.constant(0.1, shape=[n_hidden_units, ])) 
+
+weights_4 = tf.Variable(tf.random_normal([n_inputs, n_hidden_units]))
+biases_4 = tf.Variable(tf.constant(0.1, shape=[n_hidden_units, ]))
+
+weights_out_1 = tf.Variable(tf.random_normal([n_hidden_units, n_classes]))
+biases_out_1 = tf.Variable(tf.constant(0.1, shape=[n_classes, ])) 
+
+weights_out_2 = tf.Variable(tf.random_normal([n_hidden_units, n_classes]))
+biases_out_2 = tf.Variable(tf.constant(0.1, shape=[n_classes, ])) 
+
+weights_out_3 = tf.Variable(tf.random_normal([n_hidden_units, n_classes]))
+biases_out_3 = tf.Variable(tf.constant(0.1, shape=[n_classes, ])) 
+
+weights_out_4 = tf.Variable(tf.random_normal([n_hidden_units, n_classes]))
+biases_out_4 = tf.Variable(tf.constant(0.1, shape=[n_classes, ])) 
+
+weights_out = tf.Variable(tf.random_normal([n_classes*4, n_classes])) 
+biases_out = tf.Variable(tf.constant(0.1, shape=[n_classes, ]))
       
       
-def RNN(X, weights, biases):  
+def RNN(X_1, X_2, X_3, X_4, weights_1, weights_2, weights_3, weight_4, weights_out, biases_1, biases_2, biases_3, biases_4, biases_out): 
     # hidden layer for input to cell  
     #X(128 batch,28 steps,28 inputs)  
     #==>(128*28,28 inputs)  
-    X = tf.reshape(X,[-1,n_inputs])      
+    X_1 = tf.reshape(X_1,[-1,n_inputs])
+    X_2 = tf.reshape(X_2,[-1,n_inputs])
+    X_3 = tf.reshape(X_3,[-1,n_inputs])
+    X_4 = tf.reshape(X_4,[-1,n_inputs])
     #==>(128 batch*28 steps,128 hidden)  
-    X_in = tf.matmul(X,weights['in'])+biases['in']  
+    X_in_1 = tf.matmul(X_1,weights_1)+biases_1
+    X_in_2 = tf.matmul(X_2,weights_2)+biases_2
+    X_in_3 = tf.matmul(X_3,weights_3)+biases_3
+    X_in_4 = tf.matmul(X_4,weights_4)+biases_4
     #==>(128 batch,28 steps,128 hidden)  
-    X_in = tf.reshape(X_in,[-1,n_steps,n_hidden_units])  
+    X_in_1 = tf.reshape(X_in_1,[-1,n_steps,n_hidden_units])
+    X_in_2 = tf.reshape(X_in_2,[-1,n_steps,n_hidden_units])
+    X_in_3 = tf.reshape(X_in_3,[-1,n_steps,n_hidden_units])
+    X_in_4 = tf.reshape(X_in_4,[-1,n_steps,n_hidden_units])
     # cell
     #same to define active function  
-    lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(n_hidden_units,forget_bias=1,state_is_tuple=True)  
+    with tf.variable_scope("first_lstm"):
+    	lstm_cell_1 = tf.nn.rnn_cell.BasicLSTMCell(n_hidden_units,forget_bias=1,state_is_tuple=True)
+    	_init_state = lstm_cell_1.zero_state(batch_size,dtype=tf.float32)
+    	outputs_1,states_1 = tf.nn.dynamic_rnn(lstm_cell_1,X_in_1,initial_state=_init_state,time_major=False)
+    
+    with tf.variable_scope("sencond_lstm"):
+    	lstm_cell_2 = tf.nn.rnn_cell.BasicLSTMCell(n_hidden_units,forget_bias=1,state_is_tuple=True)
+    	_init_state = lstm_cell_2.zero_state(batch_size,dtype=tf.float32)
+    	outputs_2,states_2 = tf.nn.dynamic_rnn(lstm_cell_2,X_in_2,initial_state=_init_state,time_major=False)
+
+    with tf.variable_scope("third_lstm"):    	
+    	lstm_cell_3 = tf.nn.rnn_cell.BasicLSTMCell(n_hidden_units,forget_bias=1,state_is_tuple=True)
+    	_init_state = lstm_cell_3.zero_state(batch_size,dtype=tf.float32)
+    	outputs_3,states_3 = tf.nn.dynamic_rnn(lstm_cell_3,X_in_3,initial_state=_init_state,time_major=False)
+    
+    with tf.variable_scope("fourth_lstm"):
+    	lstm_cell_4 = tf.nn.rnn_cell.BasicLSTMCell(n_hidden_units,forget_bias=1,state_is_tuple=True)
+    	_init_state = lstm_cell_4.zero_state(batch_size,dtype=tf.float32)
+    	outputs_4,states_4 = tf.nn.dynamic_rnn(lstm_cell_4,X_in_4,initial_state=_init_state,time_major=False)
+
     #lstm cell is divided into two parts(c_state,m_state)  
-    _init_state = lstm_cell.zero_state(batch_size,dtype=tf.float32)  
    
     #choose rnn how to work,lstm just is one kind of rnn,use lstm_cell for active function,set initial_state  
-    outputs,states = tf.nn.dynamic_rnn(lstm_cell,X_in,initial_state=_init_state,time_major=False)     
+      
               
-    # hidden layer for output as the final results  
-    results = tf.matmul(states[1],weights['out']) + biases['out']     
+    # hidden layer for output as the final results
+    output_1 = tf.matmul(states_1[1], weights_out_1) + biases_out_1
+    output_2 = tf.matmul(states_2[1], weights_out_2) + biases_out_2
+    output_3 = tf.matmul(states_3[1], weights_out_3) + biases_out_3
+    output_4 = tf.matmul(states_4[1], weights_out_4) + biases_out_4
+
+    output = tf.concat(1, [output_1, output_2, output_3, output_4])  
+    results = tf.matmul(output, weights_out) + biases_out     
           
     #unpack to list [(batch,outputs)]*steps  
     #outputs = tf.unpack(tf.transpose(outputs,[1,0,2])) # state is the last outputs  
     #results = tf.matmul(outputs[-1],weights['out']) + biases['out']  
     return results
+
+
+
       
+x_1 = tf.slice(x, [0, 0, 0], [batch_size, n_steps, n_inputs])
+x_2 = tf.slice(x, [0, n_steps, 0], [batch_size, n_steps, n_inputs])
+x_3 = tf.slice(x, [0, n_steps*2, 0], [batch_size, n_steps, n_inputs])
+x_4 = tf.slice(x, [0, n_steps*3, 0], [batch_size, n_steps, n_inputs])
       
-pred = RNN(x, weights, biases)
+pred = RNN(x_1, x_2, x_3, x_4, weights_1, weights_2, weights_3, weights_4, weights_out, biases_1, biases_2, biases_3, biases_4, biases_out)
 
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))  
-train_op = tf.train.AdamOptimizer(lr).minimize(cost)  
+train_op = tf.train.AdamOptimizer(lr).minimize(cost)
 
     
 correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))  
@@ -128,9 +182,9 @@ with tf.Session() as sess:
             ys_test.append(test_Y[rand])
 
 # reshape xs and xs_test for feed_dict 
-        xs = np.array(xs).reshape([-1, n_steps, n_inputs])
+        xs = np.array(xs).reshape([-1, n_steps*4, n_inputs])
         ys = np.array(ys)
-        xs_test = np.array(xs_test).reshape([-1, n_steps, n_inputs])
+        xs_test = np.array(xs_test).reshape([-1, n_steps*4, n_inputs])
         ys_test = np.array(ys_test)
 
 # calculate cost
@@ -163,7 +217,7 @@ with tf.Session() as sess:
     end = start + batch_size
     while start < len(test_X):
         result.append(sess.run(pred, feed_dict={
-        x: test_X[start:end].reshape([-1, n_steps, n_inputs]),
+        x: test_X[start:end].reshape([-1, n_steps*4, n_inputs]),
         }))
         start += batch_size
         end = start + batch_size
@@ -205,4 +259,3 @@ print 'precision is'
 print precision
 print 'recall is'
 print recall
-
