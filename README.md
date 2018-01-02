@@ -5,7 +5,7 @@
 3. Method name tokenize, stem.
 4. Word embedding.
 
-# FeatureExtraction
+# Defect Prediction
 
 1. Download source and defect information.
 2. Extract AST feature using Eclipse JDT.
