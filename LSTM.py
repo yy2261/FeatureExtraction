@@ -41,8 +41,8 @@ test_name = np.array(test_name)
       
 # hyperparameters  
 lr = 0.0001
-training_iters = 500
-batch_size = 183
+training_iters = 1500
+batch_size = 111
       
 n_inputs = 200
 n_steps = 50
@@ -133,7 +133,7 @@ def RNN(X_1, X_2, X_3, X_4, weights_1, weights_2, weights_3, weight_4, weights_o
     output_3 = tf.matmul(states_3[1], weights_out_3) + biases_out_3
     output_4 = tf.matmul(states_4[1], weights_out_4) + biases_out_4
 
-    output = tf.concat(1, [output_1, output_2, output_3, output_4])  
+    output = tf.concat(axis=1, values=[output_1, output_2, output_3, output_4])  
     results = tf.matmul(output, weights_out) + biases_out     
           
     #unpack to list [(batch,outputs)]*steps  
@@ -151,14 +151,14 @@ x_4 = tf.slice(x, [0, n_steps*3, 0], [batch_size, n_steps, n_inputs])
       
 pred = RNN(x_1, x_2, x_3, x_4, weights_1, weights_2, weights_3, weights_4, weights_out, biases_1, biases_2, biases_3, biases_4, biases_out)
 
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))  
+cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))  
 train_op = tf.train.AdamOptimizer(lr).minimize(cost)
 
     
 correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))  
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))  
       
-init = tf.initialize_all_variables()
+init = tf.global_variables_initializer()
 saver = tf.train.Saver()
 train_result = []
 test_result = []
