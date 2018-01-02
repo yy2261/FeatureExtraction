@@ -1,57 +1,55 @@
 from __future__ import division
+import threading
 import os
 import sys
 
-class Distance(object):
-	def __init__(self, name, distance):
+class Feature(object):
+	def __init__(self, name, distance, featureList):
 		self.name = name
 		self.dis = distance
+		self.list = featureList
 		if 'bug_' in name:
 			self.label = 1
 		else:
 			self.label = 0
 
-def calDistance(oldFile, newFile):
-	f = open(oldFile, 'r')
-	oldLines = f.read().split('\n')
-	f.close()
-	f= open(newFile, 'r')
-	newLines = f.read().split('\n')
-	f.close()
-	matrix = [[i+j for j in range(len(newLines) + 1)] for i in range(len(oldLines) + 1)]
-	for i in xrange(1,len(oldLines)+1):  
-		for j in xrange(1,len(newLines)+1):  
-			if oldLines[i-1] == newLines[j-1]:  
+def calDistance(oldFeatures, newFeatures):
+	oldLine = len(oldFeatures.list)
+	newLine = len(newFeatures.list)
+	matrix = [[i+j for j in range(newLine + 1)] for i in range(oldLine + 1)]
+	for i in xrange(1, oldLine + 1):  
+		for j in xrange(1, newLine + 1):  
+			if oldFeatures.list[i-1] == newFeatures.list[j-1]:  
 				d = 0  
 			else:  
 				d = 1  
 			matrix[i][j] = min(matrix[i-1][j]+1,matrix[i][j-1]+1,matrix[i-1][j-1]+d)  
-	return matrix[len(oldLines)][len(newLines)]  
+	return matrix[oldLine][newLine]  
 
-def CLNI(path):
-	files = os.listdir(path)
-	NoiseSet = []
-	for i in range(len(files)):
-		tmp = files[i]
-		files[i] = files[0]
-		files[0] = tmp
-		disI = Distance(files[0], 0)
+def CLNI(features, fileBegin, fileNum):
+	global NoiseSet
+	global oldNoiseSet
+	for i in range(fileBegin, fileBegin+fileNum):
 		disList = []
-		for j in range(1, len(files)):
-			if files[j] in NoiseSet:
+		for j in range(len(features)):
+			if features[j] in oldNoiseSet:
 				continue
-			dis = calDistance(path+files[0], path+files[j])
-			disList.append(Distance(files[j], dis))
+			if i == j:
+				continue
+			features[j].dis = calDistance(features[i], features[j])
+			disList.append(features[j])
 		disList.sort(key = lambda x:x.dis)
 		num = 0
 		for j in range(5):
-			if disI.label != disList[j].label:
+			if features[i].label != disList[j].label:
 				num += 1
 		if num >= 3:
-			NoiseSet.append(files[i])
-	return NoiseSet
+			print features[i].name
+			NoiseSet.append(features[i])
 
 def calSimilarity(oldList, newList):
+	if len(oldList) == 0 or len(newList) == 0:
+		return 0
 	length = max(len(oldList), len(newList))
 	num = 0
 	for i in range(len(oldList)):
@@ -64,13 +62,40 @@ def calSimilarity(oldList, newList):
 
 if __name__ == '__main__':
 	path = sys.argv[1]
-	oldNoiseSet = CLNI(path)
-	NoiseSet = CLNI(path)
-	for j in range(100):
-		if calSimilarity(oldNoiseSet, NoiseSet) > 0.99:
-			break
-		else:
-			oldNoiseSet = NoiseSet[:]
-			NoiseSet = CLNI(path)
+	files = os.listdir(path)
+	features = []
+	for file in files:
+		f = open(path+file, 'r')
+		featureList = f.read().split('\n')
+		feature = Feature(file, 0, featureList)
+		features.append(feature)
+
+	global oldNoiseSet
+	global NoiseSet
+	oldNoiseSet = []
+	NoiseSet = []
+
+	num = 1
+
+	while calSimilarity(oldNoiseSet, NoiseSet) < 0.99:
+		oldNoiseSet = NoiseSet[:]
+		NoiseSet = []
+
+		print 'once again.................................................'
+		print 'round '+str(num)
+		num += 1
+		t1 = threading.Thread(target=CLNI, args=(features, 0, 55))
+		t2 = threading.Thread(target=CLNI, args=(features, 55, 55))
+		t3 = threading.Thread(target=CLNI, args=(features, 110, 55))
+		t4 = threading.Thread(target=CLNI, args=(features, 165, 57))
+		threads = [t1, t2, t3, t4]
+
+		for t in threads:
+			t.setDaemon(True)
+			t.start()
+		t.join()
+
+
+
 	for item in NoiseSet:
-		os.system('mv '+path+item+' exclude/')
+		os.system('mv '+path+item.name+' exclude/')
