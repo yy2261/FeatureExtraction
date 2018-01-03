@@ -9,7 +9,7 @@
 # defect prediction
 >>>>>>> 80e30494f5b5e349ddf20a7725421af554987738
 
-# FeatureExtraction
+# Defect Prediction
 
 1. Download source and defect information.
 2. Extract AST feature using Eclipse JDT.
