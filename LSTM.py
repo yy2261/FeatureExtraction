@@ -41,7 +41,7 @@ test_name = np.array(test_name)
       
 # hyperparameters  
 lr = 0.0001
-training_iters = 1500
+training_iters = 1000
 batch_size = 111
       
 n_inputs = 200
