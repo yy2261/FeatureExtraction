@@ -4,14 +4,7 @@ import sys
 from tokenStem import *
 
 def processWord(word):
-	newWord = ''
-	if 'Statement' in word:
-			newWord = word.split(' Statement')[0]
-	elif 'Clause' in word:
-		newWord = word.split(' Clause')[0]
-	if ':' in word:
-		newWord = word.split(': ')[1]
-	wordList = splittt(newWord)
+	wordList = splittt(word)
 	wordList = stemming(wordList)
 	phrase = conj(wordList)
 	return phrase
