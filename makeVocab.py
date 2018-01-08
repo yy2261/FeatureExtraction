@@ -1,24 +1,28 @@
 import os
 import sys
 
+'''
+generate vocabulary for with-project test features
+length of the longest feature sequence in line 1
+
+input: feature path, path to vocabulary
+'''
+
 def makeVocab(path, dictPath):
 	files = os.listdir(path)
 	words = []
+	maxNum = 0
 	for file in files:
 		f = open(path+file, 'r')
 		lines = f.read().split('\n')
-		word = ''
+		if len(lines) > maxNum:
+			maxNum = len(lines)
 		for i in range(len(lines)):
-			if 'Statement' in lines[i]:
-				word = lines[i].split(' Statement')[0]
-			elif 'Clause' in lines[i]:
-				word = lines[i].split(' Clause')[0]
-			if ':' in lines[i]:
-				word = lines[i].split(': ')[1].split('<')[0]
-			if word and word not in words:
-				words.append(word)
+			if lines[i] and lines[i] not in words:
+				words.append(lines[i])
 		f.close()
 	f = open(dictPath, 'w')
+	f.write(str(maxNum)+'\n')
 	for word in words:
 		f.write(word+'\n')
 	f.close()
