@@ -1,35 +1,32 @@
 import os
 import csv
 import sys
+import numpy as np
 
-def processWord(word):
-	newWord = ''
-	if 'Statement' in word:
-			newWord = word.split(' Statement')[0]
-	elif 'Clause' in word:
-		newWord = word.split(' Clause')[0]
-	if ':' in word:
-		newWord = word.split(': ')[1].split('<')[0]
-	return newWord
+'''
+generate sample files in the form of npy
+input: feature path, vocabulary path, path to generated npy
+'''
 
-def writeTrain(rows, csvPath):
-	with open(csvPath, 'w') as csvfile:
-		writer = csv.writer(csvfile)
-		for row in rows:
-			if 'bug_' in row[-1]:
-				row.append(1)
-				row.append(0)
-			else:
-				row.append(0)
-				row.append(1)
-			writer.writerow(row)
+def writeTrain(samples, labels, npyPath):
+	sample_npy = np.array(samples)
+	label_npy = np.array(labels)
+	np.save(npyPath+'Sample.npy', sample_npy)
+	np.save(npyPath+'Label.npy', label_npy)
 	print 'done.'
 
-def genSamples(featurePath, dictPath, csvPath):
+def genSamples(featurePath, dictPath, npyPath):
+	'''
+	generate samples from featurePath to .npy file
+	length of the feature vector depends on the longest sequence in train file
+	'''
 	f = open(dictPath)
-	words = f.readlines()
+	lines = f.readlines()
+	vecLength = int(lines[0])
+	words = lines[1:]
 	f.close()
 	samples = []
+	labels = []
 	filenames = os.listdir(featurePath)
 	for filename in filenames:
 		sample = []
@@ -37,20 +34,23 @@ def genSamples(featurePath, dictPath, csvPath):
 		lines = f.readlines()
 		f.close()
 		for i in range(len(lines)):
-			word = processWord(lines[i])
+			word = lines[i]
 			if word and word in words:
 				sample.append(words.index(word)+1)
 			else:
 				sample.append(len(words)+1)
 				words.append(word)
-		if len(sample) > 200:
-			sample = sample[:200]
-		elif len(sample) < 200:
-			for i in range(len(sample), 200):
+		if len(sample) > vecLength:
+			sample = sample[:vecLength]
+		elif len(sample) < vecLength:
+			for i in range(len(sample), vecLength):
 				sample.append(0)
-		sample.append(filename)
+		if 'bug_' in filename:
+			labels.append([1, 0])
+		else:
+			labels.append([0, 1])
 		samples.append(sample)
-	writeTrain(samples, csvPath)
+	writeTrain(samples, labels, npyPath)
 
 
 if __name__ == '__main__':
