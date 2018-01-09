@@ -8,12 +8,24 @@ length of the longest feature sequence in line 1
 input: feature path, path to vocabulary
 '''
 
+def getFile(path, files):
+	items = os.listdir(path)
+	for item in items:
+		newPath = path+item
+		if os.path.isfile(newPath):
+			if '.java' in newPath:
+				files.append(newPath)
+		else:
+			getFile(newPath+'/', files)
+
+
 def makeVocab(path, dictPath):
-	files = os.listdir(path)
+	files = []
+	getFile(path, files)
 	words = []
 	maxNum = 0
 	for file in files:
-		f = open(path+file, 'r')
+		f = open(file, 'r')
 		lines = f.read().split('\n')
 		if len(lines) > maxNum:
 			maxNum = len(lines)
