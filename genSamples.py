@@ -24,6 +24,7 @@ def genSamples(featurePath, dictPath, npyPath):
 	lines = f.readlines()
 	vecLength = int(lines[0])
 	words = lines[1:]
+	wordLength = len(words)
 	f.close()
 	samples = []
 	labels = []
@@ -36,10 +37,9 @@ def genSamples(featurePath, dictPath, npyPath):
 		for i in range(len(lines)):
 			word = lines[i]
 			if word and word in words:
-				sample.append(words.index(word)+1)
+				sample.append((words.index(word)+1)/float(wordLength))
 			else:
-				sample.append(len(words)+1)
-				words.append(word)
+				print word
 		if len(sample) > vecLength:
 			sample = sample[:vecLength]
 		elif len(sample) < vecLength:
