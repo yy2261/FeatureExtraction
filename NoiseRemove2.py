@@ -26,10 +26,9 @@ def calDistance(oldFeatures, newFeatures):
 			matrix[i][j] = min(matrix[i-1][j]+1,matrix[i][j-1]+1,matrix[i-1][j-1]+d)  
 	return matrix[oldLine][newLine]  
 
-def CLNI(features, fileBegin, fileNum):
-	global NoiseSet
-	global oldNoiseSet
-	for i in range(fileBegin, fileBegin+fileNum):
+def CLNI(features, oldNoiseSet):
+	NoiseSet = []
+	for i in range(len(features)):
 		disList = []
 		for j in range(len(features)):
 			if features[j] in oldNoiseSet:
@@ -43,9 +42,10 @@ def CLNI(features, fileBegin, fileNum):
 			if features[i].label != disList[num].label:
 				num_label += 1
 			num += 1 
-		if num_label / num >= 0.6:
+		if num_label / num >= 0.6 and features[i].label == 0:
 			print features[i].name
 			NoiseSet.append(features[i])
+	return NoiseSet
 
 def calSimilarity(oldList, newList):
 	if len(oldList) == 0 or len(newList) == 0:
@@ -70,31 +70,16 @@ if __name__ == '__main__':
 		feature = Feature(file, 0, featureList)
 		features.append(feature)
 
-	global oldNoiseSet
-	global NoiseSet
 	oldNoiseSet = []
 	NoiseSet = []
-
 	num = 1
-	lendir = int(sys.argv[2])
 
 	while calSimilarity(oldNoiseSet, NoiseSet) < 0.95:
 		oldNoiseSet = NoiseSet[:]
-		NoiseSet = []
-
-		print 'once again.................................................'
+		print '********************'
 		print 'round '+str(num)
 		num += 1
-		t1 = threading.Thread(target=CLNI, args=(features, 0, lendir//4))
-		t2 = threading.Thread(target=CLNI, args=(features, lendir//4, lendir//4))
-		t3 = threading.Thread(target=CLNI, args=(features, lendir//2, lendir//4))
-		t4 = threading.Thread(target=CLNI, args=(features, lendir//4 *3, lendir-lendir//4*3))
-		threads = [t1, t2, t3, t4]
-
-		for t in threads:
-			t.setDaemon(True)
-			t.start()
-		t.join()
+		NoiseSet = CLNI(features, oldNoiseSet)
 
 
 	print "**************Noise List****************"
