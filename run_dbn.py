@@ -11,7 +11,7 @@ rbm_learning_rate = [0.001]
 rbm_num_epochs = [200]
 rbm_batch_size = [100]
 rbm_gibbs_k = [1]
-finetune_opt = 'adam'     # sgd/ada_grad/momentum/adam
+finetune_opt = 'momentum'     # sgd/adagrad/momentum/adam
 finetune_loss_func = 'softmax_cross_entropy'        # softmax_cross_entropy/mse 
 finetune_dropout = 1
 
@@ -36,17 +36,14 @@ if __name__ == '__main__':
         rbm_stddev=0.1,
         momentum=0.9,
         rbm_batch_size=rbm_batch_size,
-        finetune_learning_rate=0.01,
-        finetune_num_epochs=200,
-        finetune_batch_size=256,
+        finetune_learning_rate=0.001,
+        finetune_num_epochs=500,
+        finetune_batch_size=100,
         finetune_opt=finetune_opt,
         finetune_loss_func=finetune_loss_func,
         finetune_dropout=finetune_dropout)
 
     train_result, valid_result = srbm.pretrain(trX, trY, vlX, vlY)
-
-    np.save('/home/yy/xiajbxie/camel_1.2.0_DBN.npy', train_result)
-    np.save('/home/yy/xiajbxie/camel_1.4.0_DBN.npy', valid_result)
 
     srbm.fit(trX, trY, vlX, vlY)
 
@@ -58,5 +55,5 @@ if __name__ == '__main__':
     train_result_finetune, _ = srbm.predict(trX, True)
     valid_result_finetune, _ = srbm.predict(vlX, True)
 
-    np.save('/home/yy/xiajbxie/camel_1.2.0_DBN_finetune.npy', train_result_finetune)
-    np.save('/home/yy/xiajbxie/camel_1.4.0_DBN_finetune.npy', valid_result_finetune)
+    np.save(sys.argv[5], train_result_finetune)
+    np.save(sys.argv[6], valid_result_finetune)
