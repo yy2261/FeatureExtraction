@@ -26,19 +26,26 @@ def selectFile(csvPath, featurePath, targetPath):
 	featuredirs = os.listdir(featurePath)
 	for csvdir in csvdirs:
 		fileName = csvdir.split('.')[-1]
+		dirName = csvdir.split('.')[-2]
+		secondDirName = csvdir.split('.')[-3]
 		num = 0
 		fileList = []
 		for featuredir in featuredirs:
 			featurefileName = featuredir.split('.')[-2]
-			if fileName == featurefileName:
+			featureDirName = featuredir.split('.')[-3]
+			featureSecondDirName = featuredir.split('.')[-4]
+			if fileName == featurefileName and dirName == featureDirName and secondDirName == featureSecondDirName:
 				num += 1
 				fileList.append(featuredir)
 		if num == 1:
 			os.system('cp '+featurePath+fileList[0]+' '+targetPath)
-		if num > 1:
+		elif num > 1:
 			print num
 			print csvdir
 			print fileList
+		elif num == 0:
+			print csvdir
+	print 'done.'
 
 
 if __name__ == '__main__':
