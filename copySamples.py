@@ -46,7 +46,7 @@ def main(path):
 		f.close()
 		feature = Feature(file, 0, lines)
 		Features.append(feature)
-	fileCopy(path, Features, 5)
+	fileCopy(path, Features, int(sys.argv[2]))
 
 
 if __name__ == '__main__':
