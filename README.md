@@ -7,8 +7,9 @@
 5.  remove type name for data.
 6.  remove noise for both train and test data.
 7.  resample train data.
-8.  make vocabularies.
-9.  generate sample and label files for train and test data.
-10.  train dbn with train data.
-11. gengerate semantic features for train data and test data.
-12. build classifier and test.
+8.  remove tokens appear less than three times.
+9.  make vocabularies.
+10.  generate sample and label files for train and test data.
+11. train dbn with train data.
+12. gengerate semantic features for train data and test data.
+13. build classifier and test.
