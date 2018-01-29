@@ -34,7 +34,7 @@ def fileCopy(path, features, k):
 				disList.append(features[i])
 			disList.sort(key = lambda x:x.dis)
 			for i in range(k):
-				os.system('cp '+path+disList[k].name+' '+path+str(num)+disList[k].name)
+				os.system('cp '+path+disList[i].name+' '+path+str(num)+disList[i].name)
 				num += 1
 
 def main(path):
