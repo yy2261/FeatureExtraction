@@ -40,3 +40,6 @@ else
 	echo "$total files, $buggy is buggy."
 	echo "scale=2; $buggy / $total" | bc
 fi
+
+echo "copy samples done."
+supertux2
