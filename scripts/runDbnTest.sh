@@ -1,10 +1,8 @@
 #!/bin/bash
 
 # remove the logs generated last time
-cd /home/yy/.yadlt/logs
-mv * /home/yy/tmp
-cd /home/yy/.yadlt/models
-mv * /home/yy/tmp
+rm /home/yy/.yadlt/models
+rm -r /home/yy/.yadlt/logs
 
 echo "input project name:"
 read ProjName
