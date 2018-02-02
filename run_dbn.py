@@ -9,11 +9,12 @@ from yadlt.utils import datasets, utilities
 rbm_layers = [100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
 rbm_learning_rate = [0.001]
 rbm_num_epochs = [200]
-rbm_batch_size = [100]
+rbm_batch_size = [150]
 rbm_gibbs_k = [1]
-finetune_opt = 'momentum'     # sgd/adagrad/momentum/adam
+finetune_opt = 'sgd'     # sgd/adagrad/momentum/adam
 finetune_loss_func = 'softmax_cross_entropy'        # softmax_cross_entropy/mse 
 finetune_dropout = 1
+finetune_num_epochs = 1000
 
 if __name__ == '__main__':
 
@@ -36,12 +37,15 @@ if __name__ == '__main__':
         rbm_stddev=0.1,
         momentum=0.9,
         rbm_batch_size=rbm_batch_size,
-        finetune_learning_rate=0.001,
-        finetune_num_epochs=500,
-        finetune_batch_size=100,
+        finetune_learning_rate=0.0001,
+        finetune_num_epochs=finetune_num_epochs,
+        finetune_batch_size=150,
         finetune_opt=finetune_opt,
         finetune_loss_func=finetune_loss_func,
-        finetune_dropout=finetune_dropout)
+        finetune_dropout=finetune_dropout,
+	decay_step = 200,
+	decay_rate = 0.1
+	)
 
     train_result, valid_result = srbm.pretrain(trX, trY, vlX, vlY)
 
