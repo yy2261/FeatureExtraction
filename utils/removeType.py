@@ -7,7 +7,7 @@ def removeType(word):
 			newWord = word.split(' Statement')[0]
 	elif 'Clause' in word:
 		newWord = word.split(' Clause')[0]
-	if ':' in word:
+	if ': ' in word:
 		newWord = word.split(': ')[1]
 	if '<' in newWord:
 		newWord = newWord.split('<')[0]
