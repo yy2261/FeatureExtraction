@@ -26,30 +26,33 @@ def calDistance(oldFeatures, newFeatures):
 			matrix[i][j] = min(matrix[i-1][j]+1,matrix[i][j-1]+1,matrix[i-1][j-1]+d)  
 	return matrix[oldLine][newLine]  
 
-def CLNI(features, fileBegin, fileNum):
-	global NoiseSet
-	global oldNoiseSet
-	for i in range(fileBegin, fileBegin+fileNum):
+def CLNI(features, oldNoiseSet):
+	NoiseSet = []
+	for i in range(len(features)):
 		disList = []
 		for j in range(len(features)):
 			if features[j] in oldNoiseSet:
-				continue
-			if i == j:
 				continue
 			features[j].dis = calDistance(features[i], features[j])
 			disList.append(features[j])
 		disList.sort(key = lambda x:x.dis)
 		num = 0
-		for j in range(5):
-			if features[i].label != disList[j].label:
-				num += 1
-		if num >= 3:
+		num_label = 0
+		while num_label < 5 and num < len(disList):
+			if features[i].label != disList[num].label:
+				num_label += 1
+			num += 1 
+		if num_label / num >= 0.6 and features[i].label == 0:
 			print features[i].name
 			NoiseSet.append(features[i])
+	return NoiseSet
 
-def calSimilarity(oldList, newList):
+def calSimilarity(oldList, newList, num):
 	if len(oldList) == 0 or len(newList) == 0:
-		return 0
+		if num < 3:
+			return 0
+		else:
+			return 1
 	length = max(len(oldList), len(newList))
 	num = 0
 	for i in range(len(oldList)):
@@ -70,32 +73,21 @@ if __name__ == '__main__':
 		feature = Feature(file, 0, featureList)
 		features.append(feature)
 
-	global oldNoiseSet
-	global NoiseSet
 	oldNoiseSet = []
 	NoiseSet = []
-
 	num = 1
 
-	while calSimilarity(oldNoiseSet, NoiseSet) < 0.99:
+	while calSimilarity(oldNoiseSet, NoiseSet, num) < 0.95:
 		oldNoiseSet = NoiseSet[:]
-		NoiseSet = []
-
-		print 'once again.................................................'
+		print '********************'
 		print 'round '+str(num)
 		num += 1
-		t1 = threading.Thread(target=CLNI, args=(features, 0, 55))
-		t2 = threading.Thread(target=CLNI, args=(features, 55, 55))
-		t3 = threading.Thread(target=CLNI, args=(features, 110, 55))
-		t4 = threading.Thread(target=CLNI, args=(features, 165, 57))
-		threads = [t1, t2, t3, t4]
-
-		for t in threads:
-			t.setDaemon(True)
-			t.start()
-		t.join()
+		NoiseSet = CLNI(features, oldNoiseSet)
 
 
-
+	print "**************Noise List****************"
 	for item in NoiseSet:
-		os.system('mv '+path+item.name+' exclude/')
+		print item.name
+		os.system('mv '+path+item.name+' ../exclude/')
+	print 'list length = '+str(len(NoiseSet))
+	os.system('supertux2')
