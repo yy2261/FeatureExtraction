@@ -15,13 +15,13 @@ def writeText(fd, lines):
 			continue
 		elif 'Statement' in lines[i] or 'Clause' in lines[i]:
 			fd.write(' '+lines[i].split(' ')[0].lower())
-		else:
+		elif lines[i]:
 			name = lines[i].split(': ')[-1]
 			wordList = splittt(name)
 			wordList = stemming(wordList)
 			phrase = conj(wordList)
-			if phrase == 'get_get':
-				print name
+			if phrase == '':
+				print lines[i]
 			fd.write(' '+phrase)
 	fd.write('\n')
 
