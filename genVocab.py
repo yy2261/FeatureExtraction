@@ -2,6 +2,12 @@ import os
 import sys
 from tokenStem import *
 
+'''
+input: 	a folder with millions of feature files (x
+		a txt file that store files already tokenized
+output: one .txt file that features in each featureFile takes a line in the .txt
+'''
+
 
 def writeText(fd, lines):
 	for i in range(len(lines)):
@@ -24,15 +30,13 @@ def getFile(path):
 	featureFiles = []
 	dirs = os.listdir(path)
 	for dir_ in dirs:
-		fileList = os.listdir(path+dir_)
-		for item in fileList:
-			featureFiles.append(path+dir_+'/'+item)
+		featureFiles.append(path+dir_)
 	print len(featureFiles)
 	return featureFiles
 
 def getText(path):
 	featureFiles = getFile(path)
-	g = open('text.txt', 'w')
+	g = open(sys.argv[2], 'wb')
 	num = 0
 	for featureFile in featureFiles:
 		fd = open(featureFile, 'r')
