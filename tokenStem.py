@@ -2,6 +2,12 @@ import re
 import sys
 from nltk.stem.lancaster import LancasterStemmer
 
+'''
+input: a method name/class name
+output: a phrase transformed from the method/class name
+'''
+
+
 def parseCamel(word, tokens):
 	isComplete = 1
 	for i in range(len(word)-1):
