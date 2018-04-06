@@ -1,26 +1,7 @@
 import os
 import csv
 import sys
-from tokenStem import *
-
-def processWord(word):
-	wordList = splittt(word)
-	wordList = stemming(wordList)
-	phrase = conj(wordList)
-	return phrase
-
-def writeTrain(rows, csvPath):
-	with open(csvPath, 'w') as csvfile:
-		writer = csv.writer(csvfile)
-		for row in rows:
-			if 'bug_' in row[-1]:
-				row.append(1)
-				row.append(0)
-			else:
-				row.append(0)
-				row.append(1)
-			writer.writerow(row)
-	print 'done.'
+import numpy as np
 
 
 def getVector(word, wordDict):
@@ -69,7 +50,7 @@ def makeDict(f):
 			wordDict[key] = [item]
 	return wordDict
 
-def genSamples(featurePath, dictPath, csvPath):
+def genSamples(featurePath, dictPath, npyPath):
 	f = open(dictPath)
 	wordDict = makeDict(f)
 	f.close()
@@ -82,12 +63,7 @@ def genSamples(featurePath, dictPath, csvPath):
 		lines = f.read().split('\n')
 		f.close()
 		for i in range(len(lines)):
-			if lines[i] == '':
-				continue
-			word = processWord(lines[i])
-			if word == '':
-				continue
-			vector = getVector(word, wordDict)
+			vector = getVector(lines[i], wordDict)
 			for j in range(len(vector)):
 				vector[j] = float(vector[j])
 			sample.append(vector)
@@ -97,9 +73,16 @@ def genSamples(featurePath, dictPath, csvPath):
 			for i in range(len(sample), 200):
 				zeros = [0.000 for n in range(200)]
 				sample.append(zeros)
-		sample.append(filename)
+		if 'bug_' in filename:
+			sample.append(1)
+			sample.append(0)
+		else:
+			sample.append(0)
+			sample.append(1)
 		samples.append(sample)
-	writeTrain(samples, csvPath)
+	samples = np.array(samples)
+	np.save(npyPath, samples)
+	print 'done.'
 
 
 if __name__ == '__main__':
