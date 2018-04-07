@@ -63,6 +63,8 @@ def genSamples(featurePath, dictPath, npyPath):
 		lines = f.read().split('\n')
 		f.close()
 		for i in range(len(lines)):
+			if lines[i] == '':
+				continue
 			vector = getVector(lines[i], wordDict)
 			for j in range(len(vector)):
 				vector[j] = float(vector[j])
