@@ -8,13 +8,13 @@ import random
 
 # hyperparameters
 global lr, training_iters, batch_size, n_inputs, n_steps, n_hidden_units, n_classes
-lr = 0.00001
-training_iters = 100
+lr = 0.00005
+training_iters = 2000
 batch_size = 50
       
 n_inputs = 200
-n_steps = 50
-n_hidden_units = 50  # neurons in hidden layer  
+n_steps = 40
+n_hidden_units = 20  # neurons in hidden layer  
 n_classes = 2      # classes
       
 
@@ -27,14 +27,14 @@ def processData(train_set, test_set):
     test_Y = test_set[:, -2:]
 
     # transform train_X into np.array
-    shape_X = np.zeros((len(train_X), n_steps*4, n_inputs))
+    shape_X = np.zeros((len(train_X), n_steps*5, n_inputs))
     for i in range(len(train_X)):
-        for j in range(n_steps*4):
+        for j in range(n_steps*5):
             shape_X[i, j] = np.array(train_X[i][j][:])
     train_X = shape_X[:]
-    shape_X = np.zeros((len(test_X), n_steps*4, n_inputs))
+    shape_X = np.zeros((len(test_X), n_steps*5, n_inputs))
     for i in range(len(test_X)):
-        for j in range(n_steps*4):
+        for j in range(n_steps*5):
             shape_X[i, j] = np.array(test_X[i][j][:])
     test_X = shape_X[:]
 
@@ -44,10 +44,10 @@ def RNN(X, weights, weights_out, weights_outs, biases, biases_out, biases_outs):
     global lr, training_iters, batch_size, n_inputs, n_steps, n_hidden_units, n_classes
 
     # change shape of X
-    X = map(tf.reshape, X, [[-1,n_inputs]]*4)
+    X = map(tf.reshape, X, [[-1,n_inputs]]*5)
     X_in = map(tf.matmul, X, weights)
     X_in = map(tf.add, X_in, biases)
-    X_in = map(tf.reshape, X_in, [[-1,n_steps,n_hidden_units]]*4)
+    X_in = map(tf.reshape, X_in, [[-1,n_steps,n_hidden_units]]*5)
 
     # cell  
     with tf.variable_scope("first_lstm"):
@@ -70,10 +70,16 @@ def RNN(X, weights, weights_out, weights_outs, biases, biases_out, biases_outs):
     	_init_state = lstm_cell_4.zero_state(batch_size,dtype=tf.float32)
     	outputs_4,states_4 = tf.nn.dynamic_rnn(lstm_cell_4,X_in[3],initial_state=_init_state,time_major=False)
 
+    with tf.variable_scope("fifth_lstm"):
+        lstm_cell_5 = tf.nn.rnn_cell.BasicLSTMCell(n_hidden_units,forget_bias=1,state_is_tuple=True)
+        _init_state = lstm_cell_5.zero_state(batch_size,dtype=tf.float32)
+        outputs_5,states_5 = tf.nn.dynamic_rnn(lstm_cell_5,X_in[4],initial_state=_init_state,time_major=False)
+
+
     #lstm cell is divided into two parts(c_state,m_state)
     #choose rnn how to work,lstm just is one kind of rnn,use lstm_cell for active function,set initial_state  
     # hidden layer for output as the final results
-    states = [states_1[1], states_2[1], states_3[1], states_4[1]]
+    states = [states_1[1], states_2[1], states_3[1], states_4[1], states_5[1]]
     outputs = map(tf.matmul, states, weights_outs)
     outputs = map(tf.add, outputs, biases_outs)
 
@@ -85,24 +91,25 @@ def RNN(X, weights, weights_out, weights_outs, biases, biases_out, biases_outs):
 def buildModel():
     global lr, training_iters, batch_size, n_inputs, n_steps, n_hidden_units, n_classes
     # tf Graph input
-    x = tf.placeholder(tf.float32, [None, n_steps*4, n_inputs])
+    x = tf.placeholder(tf.float32, [None, n_steps*5, n_inputs])
     y = tf.placeholder(tf.float32, [None, n_classes])
 
     # Define weights
 
-    weights = tuple([tf.Variable(tf.random_normal([n_inputs, n_hidden_units]))] * 4)
-    biases = tuple([tf.Variable(tf.constant(0.1, shape=[n_hidden_units, ]))] * 4)
-    weights_outs = tuple([tf.Variable(tf.random_normal([n_hidden_units, n_classes]))] * 4)
-    biases_outs = tuple([tf.Variable(tf.constant(0.1, shape=[n_classes, ]))] * 4)
-    weights_out = tf.Variable(tf.random_normal([n_classes*4, n_classes])) 
+    weights = tuple([tf.Variable(tf.random_normal([n_inputs, n_hidden_units]))] * 5)
+    biases = tuple([tf.Variable(tf.constant(0.1, shape=[n_hidden_units, ]))] * 5)
+    weights_outs = tuple([tf.Variable(tf.random_normal([n_hidden_units, n_classes]))] * 5)
+    biases_outs = tuple([tf.Variable(tf.constant(0.1, shape=[n_classes, ]))] * 5)
+    weights_out = tf.Variable(tf.random_normal([n_classes*5, n_classes])) 
     biases_out = tf.Variable(tf.constant(0.1, shape=[n_classes, ]))
 
     x_1 = x[:, :n_steps, :]
     x_2 = x[:, n_steps:n_steps*2, :]
     x_3 = x[:, n_steps*2:n_steps*3, :]
-    x_4 = x[:, n_steps*3:, :]
+    x_4 = x[:, n_steps*3:n_steps*4, :]
+    x_5 = x[:, n_steps*4:, :]
 
-    X = [x_1, x_2, x_3, x_4]
+    X = [x_1, x_2, x_3, x_4, x_5]
           
     pred = RNN(X, weights, weights_out, weights_outs, biases, biases_out, biases_outs)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))  
@@ -133,9 +140,9 @@ def selectData(train_X, train_Y, test_X, test_Y):
         xs_test.append(test_X[rand])
         ys_test.append(test_Y[rand])
     # reshape xs and xs_test for feed_dict
-    xs = np.array(xs).reshape([-1, n_steps*4, n_inputs])
+    xs = np.array(xs).reshape([-1, n_steps*5, n_inputs])
     ys = np.array(ys)
-    xs_test = np.array(xs_test).reshape([-1, n_steps*4, n_inputs])
+    xs_test = np.array(xs_test).reshape([-1, n_steps*5, n_inputs])
     ys_test = np.array(ys_test)
     return xs, ys, xs_test, ys_test
 
@@ -178,14 +185,14 @@ def predict(saver, pred, x, test_X, test_Y):
         end = start + batch_size
         while end < len(test_X):
             result_batch = sess.run(pred, feed_dict={
-            x: test_X[start:end].reshape([-1, n_steps*4, n_inputs])})
+            x: test_X[start:end].reshape([-1, n_steps*5, n_inputs])})
             start += batch_size
             end = start + batch_size
             for i in range(batch_size):
                 result.append(result_batch[i])
         # last result
         result_last_batch = sess.run(pred, feed_dict={
-            x: test_X[len(test_X)-batch_size:].reshape([-1, n_steps*4, n_inputs])})
+            x: test_X[len(test_X)-batch_size:].reshape([-1, n_steps*5, n_inputs])})
         for i in range(len(test_X)-start):
             result.append(result_last_batch[i])
     print len(result)
