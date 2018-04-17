@@ -10,7 +10,7 @@ import random
 global lr, training_iters, batch_size, n_inputs, n_steps, n_hidden_units, n_classes
 lr = 0.00005
 training_iters = 2000
-batch_size = 50
+batch_size = 30
       
 n_inputs = 200
 n_steps = 40
@@ -85,7 +85,7 @@ def RNN(X, weights, weights_out, weights_outs, biases, biases_out, biases_outs):
 
     output = tf.concat(axis=1, values=outputs)  
     results = tf.matmul(output, weights_out) + biases_out
-    return results
+    return results, output
 
 
 def buildModel():
@@ -98,9 +98,11 @@ def buildModel():
 
     weights = tuple([tf.Variable(tf.random_normal([n_inputs, n_hidden_units]))] * 5)
     biases = tuple([tf.Variable(tf.constant(0.1, shape=[n_hidden_units, ]))] * 5)
-    weights_outs = tuple([tf.Variable(tf.random_normal([n_hidden_units, n_classes]))] * 5)
-    biases_outs = tuple([tf.Variable(tf.constant(0.1, shape=[n_classes, ]))] * 5)
-    weights_out = tf.Variable(tf.random_normal([n_classes*5, n_classes])) 
+
+    # change weights_outs y to 10 instead of 2
+    weights_outs = tuple([tf.Variable(tf.random_normal([n_hidden_units, 10]))] * 5)
+    biases_outs = tuple([tf.Variable(tf.constant(0.1, shape=[10, ]))] * 5)
+    weights_out = tf.Variable(tf.random_normal([50, n_classes])) 
     biases_out = tf.Variable(tf.constant(0.1, shape=[n_classes, ]))
 
     x_1 = x[:, :n_steps, :]
@@ -111,13 +113,13 @@ def buildModel():
 
     X = [x_1, x_2, x_3, x_4, x_5]
           
-    pred = RNN(X, weights, weights_out, weights_outs, biases, biases_out, biases_outs)
+    pred, output = RNN(X, weights, weights_out, weights_outs, biases, biases_out, biases_outs)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))  
     train_op = tf.train.AdamOptimizer(lr).minimize(cost)
     correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))  
     accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-    return train_op, cost, x, y, accuracy, pred
+    return train_op, cost, x, y, accuracy, pred, output
 
 
 def selectData(train_X, train_Y, test_X, test_Y):
@@ -172,30 +174,34 @@ def train(train_op, cost, x, y, accuracy, train_X, train_Y, test_X, test_Y):
                 test_result.append(sess.run(accuracy, feed_dict={x: xs_test, y: ys_test}))
                 print 'loss is: '+str(loss_)
             step += 1
-        saver.save(sess, 'model.ckpt')
+        saver.save(sess, 'models/model.ckpt')
     makePlot(train_result, test_result)
     return saver
 
-def predict(saver, pred, x, test_X, test_Y):
+def predict(saver, pred, output, x, test_X, test_Y, softmax_store_path):
     global lr, training_iters, batch_size, n_inputs, n_steps, n_hidden_units, n_classes
     result = []
+    result_softmax = []
     with tf.Session() as sess:
-        saver.restore(sess, './model.ckpt')
+        saver.restore(sess, 'models/model.ckpt')
         start = 0
         end = start + batch_size
         while end < len(test_X):
-            result_batch = sess.run(pred, feed_dict={
-            x: test_X[start:end].reshape([-1, n_steps*5, n_inputs])})
+            result_batch, softmax = sess.run([pred, output], feed_dict={
+                x: test_X[start:end].reshape([-1, n_steps*5, n_inputs])})
             start += batch_size
             end = start + batch_size
             for i in range(batch_size):
                 result.append(result_batch[i])
+                result_softmax.append(softmax[i])
         # last result
-        result_last_batch = sess.run(pred, feed_dict={
+        result_last_batch, softmax_last_batch = sess.run([pred, output], feed_dict={
             x: test_X[len(test_X)-batch_size:].reshape([-1, n_steps*5, n_inputs])})
         for i in range(len(test_X)-start):
             result.append(result_last_batch[i])
-    print len(result)
+            result_softmax.append(softmax_last_batch[i])
+    result_softmax = np.array(result_softmax)
+    np.save(softmax_store_path, result_softmax)
     return result
 
 def measure(result, test_Y):
@@ -223,9 +229,10 @@ def main(train_path, test_path):
     train_set = np.load(train_path)
     test_set = np.load(test_path)
     train_X, train_Y, test_X, test_Y = processData(train_set, test_set)
-    train_op, cost, x, y, accuracy, pred = buildModel()
+    train_op, cost, x, y, accuracy, pred, output = buildModel()
     saver = train(train_op, cost, x, y, accuracy, train_X, train_Y, test_X, test_Y)
-    result = predict(saver, pred, x, test_X, test_Y)
+    train_result = predict(saver, pred, output, x, train_X, train_Y, sys.argv[3])
+    result = predict(saver, pred, output, x, test_X, test_Y, sys.argv[4])
     measure(result, test_Y)
 
 if __name__ == '__main__':
