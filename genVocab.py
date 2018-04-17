@@ -30,7 +30,8 @@ def getFile(path):
 	featureFiles = []
 	dirs = os.listdir(path)
 	for dir_ in dirs:
-		featureFiles.append(path+dir_)
+		if '.java' in dir_:
+			featureFiles.append(path+dir_)
 	print len(featureFiles)
 	return featureFiles
 
