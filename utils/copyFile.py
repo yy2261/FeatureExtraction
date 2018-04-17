@@ -14,7 +14,7 @@ def main(path, writePath):
 			name = path+name
 			with open(name, 'r') as readFd:
 				for line in readFd:
-					if line != ' \n':
+					if line and line != ' \n':
 						writeFd.write(line)
 
 
