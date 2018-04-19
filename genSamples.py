@@ -6,7 +6,7 @@ import numpy as np
 
 def getVector(word, wordDict):
 	key = word[0:2]
-	if wordDict.has_key(key) == True:
+	if key in wordDict:
 		for text in wordDict[key]:
 			vectorName = text.split(' ')[0]
 			if word == vectorName:
@@ -35,25 +35,23 @@ def getVector(word, wordDict):
 		print candidate.split(' ')[0]
 		return candidate.split(' ')[1:-1]
 
-def makeDict(f):
-	items = f.read().split('\n')
+def makeDict(dictPath):
 	wordDict = {}
-	for item in items:
-		try:
-			item.split(' ')[0].decode('ascii')
-		except:
-			continue
-		key = item.split(' ')[0][0:2]
-		if wordDict.has_key(key) == True:
-			wordDict[key].append(item)
-		else:
-			wordDict[key] = [item]
+	with open(dictPath, 'r') as f:
+		for line in f:
+			try:
+				line.strip().split(' ')[0].decode('ascii')
+			except:
+				continue
+			key = line.split(' ')[0][0:2]
+			if key in wordDict:
+				wordDict[key].append(line)
+			else:
+				wordDict[key] = [line]
 	return wordDict
 
 def genSamples(featurePath, dictPath, npyPath):
-	f = open(dictPath)
-	wordDict = makeDict(f)
-	f.close()
+	wordDict = makeDict(dictPath)
 	samples = []
 	filenames = os.listdir(featurePath)
 	for filename in filenames:
