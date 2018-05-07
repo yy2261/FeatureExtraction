@@ -31,14 +31,14 @@ def selectFile(csvPath, featurePath):
 				num += 1
 				fileList.append(featuredir)
 		if num == 1:
-			if defects[i] == 1:
+			if defects[i] >= 1:
 				os.system('mv '+featurePath+fileList[0]+' '+featurePath+'bug_'+fileList[0])
 		elif num > 1:
-			if defects[i] == 1:
+			if defects[i] >= 1:
 				print num
 				print csvdirs[i]
 				print fileList
-		elif num == 0 and defects[i] == 1:
+		elif num == 0 and defects[i] >= 1:
 			print csvdirs[i]
 	print 'done.'
 
