@@ -5,6 +5,13 @@ input
 	csv path
 	feature path
 	target new dir path
+
+strategy:
+
+check filename, for the classes share the same filename, append to a list
+
+check the list and check the dirName and secondDirName, if both are the same then print the path
+
 '''
 
 import os
@@ -32,11 +39,31 @@ def selectFile(csvPath, featurePath, targetPath):
 		fileList = []
 		for featuredir in featuredirs:
 			featurefileName = featuredir.split('.')[-2]
-			featureDirName = featuredir.split('.')[-3]
-			featureSecondDirName = featuredir.split('.')[-4]
-			if fileName == featurefileName and dirName == featureDirName and secondDirName == featureSecondDirName:
+			if fileName == featurefileName:
 				num += 1
 				fileList.append(featuredir)
+		if num == 1:
+			os.system('cp '+featurePath+fileList[0]+' '+targetPath)
+		elif num > 1:
+			tmpFileList = []
+			for item in fileList:
+				featureDirName = item.split('.')[-3]
+				if dirName != featureDirName:
+					num -= 1
+				else:
+					tmpFileList.append(item)
+			fileList = tmpFileList
+		if num == 1:
+			os.system('cp '+featurePath+fileList[0]+' '+targetPath)
+		elif num > 1:
+			tmpFileList = []
+			for item in fileList:
+				featureSecondDirName = item.split('.')[-4]
+				if secondDirName != featureSecondDirName:
+					num -= 1
+				else:
+					tmpFileList.append(item)
+			fileList = tmpFileList
 		if num == 1:
 			os.system('cp '+featurePath+fileList[0]+' '+targetPath)
 		elif num > 1:
