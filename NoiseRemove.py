@@ -31,7 +31,7 @@ def CLNI(features, oldNoiseSet):
 	for i in range(len(features)):
 		disList = []
 		for j in range(len(features)):
-			if features[j] in oldNoiseSet:
+			if i == j or features[j] in oldNoiseSet:
 				continue
 			features[j].dis = calDistance(features[i], features[j])
 			disList.append(features[j])
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 	NoiseSet = []
 	num = 1
 
-	while calSimilarity(oldNoiseSet, NoiseSet, num) < 0.95:
+	while calSimilarity(oldNoiseSet, NoiseSet, num) < 0.99:
 		oldNoiseSet = NoiseSet[:]
 		print '********************'
 		print 'round '+str(num)
