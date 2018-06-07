@@ -30,6 +30,8 @@ def fileCopy(path, features, k):
 		if item.label == 1:
 			disList = []
 			for i in range(len(features)):
+				if item.list == features[i].list:
+					continue
 				features[i].dis = calDistance(features[i], item)
 				disList.append(features[i])
 			disList.sort(key = lambda x:x.dis)
