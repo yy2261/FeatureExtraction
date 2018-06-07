@@ -4,17 +4,19 @@ import sys
 
 from yadlt.models.boltzmann import dbn
 from yadlt.utils import datasets, utilities
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import *
 
 
 rbm_layers = [100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
-rbm_learning_rate = [0.005]
+rbm_learning_rate = [0.001, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 rbm_num_epochs = [200]
-rbm_batch_size = [150]
+rbm_batch_size = [50]
 rbm_gibbs_k = [1]
-finetune_opt = 'sgd'     # sgd/adagrad/momentum/adam
+finetune_opt = 'adam'     # sgd/adagrad/momentum/adam
 finetune_loss_func = 'softmax_cross_entropy'        # softmax_cross_entropy/mse 
 finetune_dropout = 1
-finetune_num_epochs = 1000
+finetune_num_epochs = 1
 
 if __name__ == '__main__':
 
@@ -34,30 +36,24 @@ if __name__ == '__main__':
         rbm_num_epochs=rbm_num_epochs,
         rbm_gibbs_k = rbm_gibbs_k,
         rbm_gauss_visible=True,
-        rbm_stddev=0.5,
+        rbm_stddev=50,
         momentum=0.9,
         rbm_batch_size=rbm_batch_size,
-        finetune_learning_rate=0.01,
-        finetune_num_epochs=finetune_num_epochs,
-        finetune_batch_size=150,
-        finetune_opt=finetune_opt,
-        finetune_loss_func=finetune_loss_func,
-        finetune_dropout=finetune_dropout,
-	decay_step = 1400,
-	decay_rate = 0.65
 	)
 
     train_result, valid_result = srbm.pretrain(trX, trY, vlX, vlY)
 
-    srbm.fit(trX, trY, vlX, vlY)
+    print train_result, valid_result
 
-    accuracy, precision, recall = srbm.score(vlX, vlY)
-    print('Test set accuracy: {}'.format(accuracy))
-    print('Test set precision:{}'.format(precision))
-    print('Test set recall:{}'.format(recall))
+    clf=LogisticRegression(penalty='l1', C=100, solver='liblinear')
 
-    train_result_finetune, _ = srbm.predict(trX, True)
-    valid_result_finetune, _ = srbm.predict(vlX, True)
+    trY = [item[0] for item in trY]
+    vlY = [item[0] for item in vlY]
 
-    np.save(sys.argv[5], train_result_finetune)
-    np.save(sys.argv[6], valid_result_finetune)
+    clf.fit(train_result, trY)
+    result = clf.predict(valid_result)
+
+    print accuracy_score(vlY, result)
+    print precision_score(vlY, result)
+    print recall_score(vlY, result)
+    print f1_score(vlY, result)
