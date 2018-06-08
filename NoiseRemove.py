@@ -37,12 +37,10 @@ def CLNI(features, oldNoiseSet):
 			disList.append(features[j])
 		disList.sort(key = lambda x:x.dis)
 		num = 0
-		num_label = 0
-		while num_label < 5 and num < len(disList):
-			if features[i].label != disList[num].label:
-				num_label += 1
-			num += 1 
-		if num_label / num >= 0.6 and features[i].label == 0:
+		for j in range(5):
+			if features[i].label != disList[j].label:
+				num += 1
+		if num >= 3:
 			print features[i].name
 			NoiseSet.append(features[i])
 	return NoiseSet
@@ -77,7 +75,7 @@ if __name__ == '__main__':
 	NoiseSet = []
 	num = 1
 
-	while calSimilarity(oldNoiseSet, NoiseSet, num) < 0.99:
+	while calSimilarity(oldNoiseSet, NoiseSet, num) < 0.98:
 		oldNoiseSet = NoiseSet[:]
 		print '********************'
 		print 'round '+str(num)
@@ -88,6 +86,6 @@ if __name__ == '__main__':
 	print "**************Noise List****************"
 	for item in NoiseSet:
 		print item.name
-		os.system('mv '+path+item.name+' ../exclude/')
+		os.system('mv '+path+item.name+' /media/yy/10A4078410A40784/grad_proj/exclude/')
 	print 'list length = '+str(len(NoiseSet))
 	os.system('supertux2')
