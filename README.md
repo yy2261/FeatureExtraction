@@ -17,3 +17,5 @@
 4. Label feature files with defect information (fileLabel.py).
 5. Generate training/test csv by transforming features into word vectors (genSamples.py).
 6. Build LSTM model and evaluation.
+
+7. Add pooling
