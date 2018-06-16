@@ -20,7 +20,10 @@ def selectFile(csvPath, featurePath):
 	for i in range(len(csvdirs)):
 		fileName = csvdirs[i].split('.')[-1]
 		dirName = csvdirs[i].split('.')[-2]
-		secondDirName = csvdirs[i].split('.')[-3]
+		try:
+			secondDirName = csvdirs[i].split('.')[-3]
+		except:
+			pass
 		num = 0
 		fileList = []
 		for featuredir in featuredirs:
