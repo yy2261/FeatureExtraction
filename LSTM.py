@@ -8,13 +8,13 @@ import random
 
 # hyperparameters
 global lr, training_iters, batch_size, n_inputs, n_steps, n_hidden_units, n_classes
-lr = 0.00005
+lr = 0.000001
 training_iters = 2000
-batch_size = 30
+batch_size = 20
       
 n_inputs = 200
 n_steps = 40
-n_hidden_units = 20  # neurons in hidden layer  
+n_hidden_units = 30  # neurons in hidden layer  
 n_classes = 2      # classes
       
 
@@ -178,7 +178,7 @@ def train(train_op, cost, x, y, accuracy, train_X, train_Y, test_X, test_Y):
     makePlot(train_result, test_result)
     return saver
 
-def predict(saver, pred, output, x, test_X, test_Y, softmax_store_path):
+def predict(saver, pred, output, x, test_X, test_Y):
     global lr, training_iters, batch_size, n_inputs, n_steps, n_hidden_units, n_classes
     result = []
     result_softmax = []
@@ -201,7 +201,6 @@ def predict(saver, pred, output, x, test_X, test_Y, softmax_store_path):
             result.append(result_last_batch[i])
             result_softmax.append(softmax_last_batch[i])
     result_softmax = np.array(result_softmax)
-    np.save(softmax_store_path, result_softmax)
     return result
 
 def measure(result, test_Y):
@@ -231,8 +230,7 @@ def main(train_path, test_path):
     train_X, train_Y, test_X, test_Y = processData(train_set, test_set)
     train_op, cost, x, y, accuracy, pred, output = buildModel()
     saver = train(train_op, cost, x, y, accuracy, train_X, train_Y, test_X, test_Y)
-    train_result = predict(saver, pred, output, x, train_X, train_Y, sys.argv[3])
-    result = predict(saver, pred, output, x, test_X, test_Y, sys.argv[4])
+    result = predict(saver, pred, output, x, test_X, test_Y)
     measure(result, test_Y)
 
 if __name__ == '__main__':
