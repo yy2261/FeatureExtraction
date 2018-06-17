@@ -78,17 +78,16 @@ def genSamples(featurePath, dictPath, npyPath):
 	newSamples = []
 	for i in range(len(samples)):
 		if len(samples[i]) < maxlength:
-			for j in range(len(sample), maxlength):
+			for j in range(len(samples[i]), maxlength):
 				zeros = [0.000 for n in range(200)]
-				sample.append(zeros)
+				samples[i].append(zeros)
 		if 'bug_' in filenames[i]:
-			sample.append(1)
-			sample.append(0)
+			samples[i].append(1)
+			samples[i].append(0)
 		else:
-			sample.append(0)
-			sample.append(1)
-		newSamples.append(sample)
-	samples = np.array(newSamples)
+			samples[i].append(0)
+			samples[i].append(1)
+	samples = np.array(samples)
 	np.save(npyPath, samples)
 	print 'done.'
 
