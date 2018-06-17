@@ -30,7 +30,7 @@ def getVector(word, wordDict):
 					maxcount = len(dict_words)
 	if candidate == '':
 		print 'mismatch!'
-		return ['0.000' for n in range(200)]
+		return None
 	else:
 		print candidate.split(' ')[0]
 		return candidate.split(' ')[1:-1]
@@ -48,39 +48,47 @@ def makeDict(dictPath):
 				wordDict[key].append(line)
 			else:
 				wordDict[key] = [line]
+	print len(wordDict)
 	return wordDict
 
 def genSamples(featurePath, dictPath, npyPath):
 	wordDict = makeDict(dictPath)
 	samples = []
 	filenames = os.listdir(featurePath)
+	maxlength = 0
 	for filename in filenames:
 		print filename
 		sample = []
 		f = open(featurePath+filename, 'r')
 		lines = f.read().split('\n')
 		f.close()
+		if len(lines) > maxlength:
+			maxlength = len(lines)
 		for i in range(len(lines)):
 			if lines[i] == '':
 				continue
 			vector = getVector(lines[i], wordDict)
+			if vector == None:
+				continue
 			for j in range(len(vector)):
 				vector[j] = float(vector[j])
 			sample.append(vector)
-		if len(sample) > 200:
-			sample = sample[:200]
-		elif len(sample) < 200:
-			for i in range(len(sample), 200):
+		samples.append(sample)
+
+	newSamples = []
+	for i in range(len(samples)):
+		if len(samples[i]) < maxlength:
+			for j in range(len(sample), maxlength):
 				zeros = [0.000 for n in range(200)]
 				sample.append(zeros)
-		if 'bug_' in filename:
+		if 'bug_' in filenames[i]:
 			sample.append(1)
 			sample.append(0)
 		else:
 			sample.append(0)
 			sample.append(1)
-		samples.append(sample)
-	samples = np.array(samples)
+		newSamples.append(sample)
+	samples = np.array(newSamples)
 	np.save(npyPath, samples)
 	print 'done.'
 
