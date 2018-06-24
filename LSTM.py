@@ -8,13 +8,13 @@ import random
 
 # hyperparameters
 global lr, training_iters, batch_size, n_inputs, n_steps, n_hidden_units, n_classes
-lr = 0.0005
+lr = float(sys.argv[3])
 training_iters = 100
 batch_size = 20
       
-n_inputs = 200
+n_inputs = 50
 n_steps = 0
-n_hidden_units = 30  # neurons in hidden layer  
+n_hidden_units = int(sys.argv[4])  # neurons in hidden layer  
 n_classes = 2      # classes
       
 
@@ -101,7 +101,7 @@ def buildModel():
     pred = RNN(x, weight, weight_out, bias, bias_out, mask)
 
 
-    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=(pred+1e-10), labels=y))
     train_op = tf.train.AdamOptimizer(lr).minimize(cost)
     correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))  
     accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
@@ -137,13 +137,15 @@ def train(train_op, cost, x, y, mask, accuracy, train_X, train_Y, train_mask):
             np.random.shuffle(train_set)
             batches = [ _ for _ in genTrainBatch(train_set)]
 
+            losses = []
             for batch in batches:
                 batch = zip(*batch)
                 xs, ys, masks = batch[0], batch[1], batch[2]
                 # calculate cost
                 _, loss_ = sess.run([train_op, cost], feed_dict={x: xs, y: ys, mask: np.swapaxes(masks, 0, 1)})
+                losses.append(loss_)
             if i % 10 == 0:
-                print 'loss is: '+str(loss_)
+                print 'loss is: '+str(np.mean(losses))
 
         saver.save(sess, 'models/model.ckpt')
     return saver
