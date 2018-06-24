@@ -3,6 +3,8 @@ import csv
 import sys
 import numpy as np
 
+vecDim = 500
+
 
 def getVector(word, wordDict):
 	key = word[0:2]
@@ -75,11 +77,12 @@ def genSamples(featurePath, dictPath, npyPath):
 			sample.append(vector)
 		samples.append(sample)
 
+	del wordDict
 	newSamples = []
 	for i in range(len(samples)):
 		if len(samples[i]) < maxlength:
 			for j in range(len(samples[i]), maxlength):
-				zeros = [0.000 for n in range(200)]
+				zeros = [0.000 for n in range(vecDim)]
 				samples[i].append(zeros)
 		if 'bug_' in filenames[i]:
 			samples[i].append(1)
