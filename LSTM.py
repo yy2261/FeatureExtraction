@@ -12,7 +12,7 @@ lr = float(sys.argv[3])
 training_iters = 100
 batch_size = 20
       
-n_inputs = 50
+n_inputs = 100
 n_steps = 0
 n_hidden_units = int(sys.argv[4])  # neurons in hidden layer  
 n_classes = 2      # classes
