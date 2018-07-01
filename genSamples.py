@@ -3,7 +3,7 @@ import csv
 import sys
 import numpy as np
 
-vecDim = 500
+vecDim = 100
 
 
 def getVector(word, wordDict):
