@@ -1,0 +1,8 @@
+echo "input proj name&version:"
+read proj
+
+mkdir $proj
+
+python /media/yy/10A4078410A40784/grad_proj/code/removeName.py \
+/media/yy/10A4078410A40784/grad_proj/exp/ori_feature/${proj}/ \
+/media/yy/10A4078410A40784/grad_proj/exp/cross_feature/${proj}/
