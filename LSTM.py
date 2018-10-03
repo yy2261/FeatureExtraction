@@ -25,6 +25,8 @@ def processData(train_set, test_set):
     train_Y = train_set[:, -2:]
     test_X = test_set[:, :-2]
     test_Y = test_set[:, -2:]
+    del train_set
+    del test_set
 
     train_mask = np.zeros((n_steps, len(train_X), n_hidden_units))
     # transform train_X into np.array
