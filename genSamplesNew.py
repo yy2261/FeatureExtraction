@@ -54,30 +54,29 @@ def makeDict(dictPath):
 	return wordDict
 
 def genSamples(featurePath, dictPath, npyPath):
-	wordDict = makeDict(dictPath)
+	f = open(dictPath, 'r')
+	tokenList = f.read().split('\n')
+	maxlength = tokenList[0]
+	f.close()
 	samples = []
 	filenames = os.listdir(featurePath)
-	maxlength = 0
 	for filename in filenames:
 		print filename
 		sample = []
 		f = open(featurePath+filename, 'r')
 		lines = f.read().split('\n')
 		f.close()
-		if len(lines) > maxlength:
-			maxlength = len(lines)
 		for i in range(len(lines)):
-			if lines[i] == '':
-				continue
-			vector = getVector(lines[i], wordDict)
-			if vector == None:
-				continue
-			for j in range(len(vector)):
-				vector[j] = float(vector[j])
-			sample.append(vector)
+			if i > maxlength:
+				break
+			word = lines[i]
+			if word in tokenList:
+				tmp = tokenList.index(word)
+				sample.append([tmp])
+			else
+				
 		samples.append(sample)
 
-	del wordDict
 	newSamples = []
 	for i in range(len(samples)):
 		if len(samples[i]) < maxlength:
