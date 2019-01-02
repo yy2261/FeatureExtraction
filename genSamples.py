@@ -3,8 +3,6 @@ import csv
 import sys
 import numpy as np
 
-vecDim = 100
-
 
 def getVector(word, wordDict):
 	key = word[0:2]
@@ -56,7 +54,7 @@ def makeDict(dictPath):
 def genSamples(featurePath, dictPath, npyPath):
 	f = open(dictPath, 'r')
 	tokenList = f.read().split('\n')
-	maxlength = tokenList[0]
+	maxlength = int(tokenList[0])
 	f.close()
 	samples = []
 	filenames = os.listdir(featurePath)
@@ -67,22 +65,20 @@ def genSamples(featurePath, dictPath, npyPath):
 		lines = f.read().split('\n')
 		f.close()
 		for i in range(len(lines)):
-			if i > maxlength:
+			if i >= maxlength:
 				break
 			word = lines[i]
 			if word in tokenList:
 				tmp = tokenList.index(word)
-				sample.append([tmp])
-			else
-				
+				sample.append([tmp*1.0/len(tokenList)])
+			else:
+				print word				
 		samples.append(sample)
 
-	newSamples = []
 	for i in range(len(samples)):
 		if len(samples[i]) < maxlength:
 			for j in range(len(samples[i]), maxlength):
-				zeros = [0.000 for n in range(vecDim)]
-				samples[i].append(zeros)
+				samples[i].append([0.0])
 		if 'bug_' in filenames[i]:
 			samples[i].append(1)
 			samples[i].append(0)
