@@ -199,6 +199,7 @@ def main(train_path, test_path):
     train_set = np.load(train_path)
     test_set = np.load(test_path)
     n_steps = len(train_set[0])-2
+    print n_steps
     print 'processing data...'
     train_X, train_Y, train_mask, test_X, test_Y, test_mask = processData(train_set, test_set)
     print 'building model...'
