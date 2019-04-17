@@ -190,7 +190,7 @@ def measure(result, test_Y):
     print 'f1 is:'+str(f1)
 
 
-def main(train_path, test_path, test_path_2, test_path_3, test_path_4):
+def main(train_path, test_path, test_path_2, test_path_3, test_path_4, test_path_5):
     global n_steps
     train_set = np.load(train_path)
     test_set = np.load(test_path)
@@ -245,6 +245,16 @@ def main(train_path, test_path, test_path_2, test_path_3, test_path_4):
     del test_Y
     del test_mask
 
+    test_set = np.load(test_path_5)
+    _, _, _, test_X, test_Y, test_mask = processData(train_set, test_set)
+    print 'predicting...'
+    result = predict(saver, pred, x, mask, test_X, test_Y, test_mask)
+    measure(result, test_Y)
+
+    del test_X
+    del test_Y
+    del test_mask
+
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[5], sys.argv[6], sys.argv[7])
+    main(sys.argv[1], sys.argv[2], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
